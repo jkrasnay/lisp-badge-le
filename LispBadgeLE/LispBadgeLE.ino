@@ -68,7 +68,7 @@ const char LispLibrary[] PROGMEM = "";
 #define push(x, y)         ((y) = cons((x),(y)))
 #define pop(y)             ((y) = cdr(y))
 
-#define protect(y)         push((y), GCStack) 
+#define protect(y)         push((y), GCStack)
 #define unprotect()        pop(GCStack)
 
 #define integerp(x)        ((x) != NULL && (x)->type == NUMBER)
@@ -162,7 +162,7 @@ typedef void (*pfun_t)(char);
 
 enum builtins: builtin_t { NIL, TEE, NOTHING, OPTIONAL, FEATURES, INITIALELEMENT, ELEMENTTYPE, TEST, BIT, AMPREST,
 LAMBDA, LET, LETSTAR, CLOSURE, PSTAR, QUOTE, DEFUN, DEFVAR, DEFCODE, EQ, CAR, FIRST, CDR, REST, NTH, AREF,
-CHAR, STRINGFN, PINMODE, DIGITALWRITE, ANALOGREAD, ANALOGREFERENCE, REGISTER, FORMAT, 
+CHAR, STRINGFN, PINMODE, DIGITALWRITE, ANALOGREAD, ANALOGREFERENCE, REGISTER, FORMAT,
  };
 
 // Global variables
@@ -1749,12 +1749,12 @@ object *dobody (object *args, object *env, bool star) {
     else {
       var = first(varform);
       varform = cdr(varform);
-      if (varform != NULL) {  
+      if (varform != NULL) {
         init = eval(first(varform), env);
         varform = cdr(varform);
         if (varform != NULL) step = cons(first(varform), NULL);
       }
-    }  
+    }
     object *pair = cons(var, init);
     push(pair, newenv);
     if (star) env = newenv;
@@ -1789,7 +1789,7 @@ object *dobody (object *args, object *env, bool star) {
           push(pair, GCStack);
           count++;
         }
-      } 
+      }
       varlist = cdr(varlist);
     }
     while (count > 0) {
@@ -1866,7 +1866,7 @@ inline int serial1read () { while (!Serial1.available()) testescape(); return Se
 #if defined(sdcardsupport)
 File SDpfile, SDgfile;
 inline int SDread () {
-  if (LastChar) { 
+  if (LastChar) {
     char temp = LastChar;
     LastChar = 0;
     return temp;
@@ -1931,7 +1931,7 @@ pfun_t pstreamfun (object *args) {
   else if (streamtype == SERIALSTREAM) {
     if (address == 0) pfun = pserial;
     else if (address == 1) pfun = serial1write;
-  }   
+  }
   else if (streamtype == STRINGSTREAM) {
     pfun = pstr;
   }
@@ -2043,12 +2043,12 @@ void superprint (object *form, int lm, pfun_t pfun) {
     }
     while (form != NULL) {
       if (atom(form)) { pfstring(PSTR(" . "), pfun); printobject(form, pfun); pfun(')'); return; }
-      else if (separate) { 
+      else if (separate) {
         pfun('(');
         separate = false;
       } else if (special) {
         pfun(' ');
-        special--; 
+        special--;
       } else if (fits) {
         pfun(' ');
       } else { pln(pfun); indent(lm, ' ', pfun); }
@@ -2102,7 +2102,7 @@ object *call (int entry, int nargs, object *args, object *env) {
 void putcode (object *arg, int origin, int pc) {
   int code = checkinteger(arg);
   uint8_t hi = (code>>8) & 0xff;
-  uint8_t lo = code & 0xff; 
+  uint8_t lo = code & 0xff;
   MyCode[origin+pc] = lo;            // Little-endian
   MyCode[origin+pc+1] = hi;
   #if defined(assemblerlist)
@@ -2636,7 +2636,7 @@ object *sp_defcode (object *args, object *env) {
   if (Flash.erasePage(CODE_ADDRESS, 1)) error2(PSTR("problem erasing flash"));
   Flash.writeBytes(CODE_ADDRESS, MyCode, CODESIZE);
   #endif
-  
+
   clrflag(NOESC);
   return var;
 #else
@@ -2900,7 +2900,7 @@ object *fn_copylist (object *args, object *env) {
   object *result = cons(NULL, NULL);
   object *ptr = result;
   while (arg != NULL) {
-    cdr(ptr) = cons(car(arg), NULL); 
+    cdr(ptr) = cons(car(arg), NULL);
     ptr = cdr(ptr); arg = cdr(arg);
   }
   return cdr(result);
@@ -3195,7 +3195,7 @@ object *fn_minfn (object *args, object *env) {
 
 object *fn_noteq (object *args, object *env) {
   (void) env;
-  while (args != NULL) {   
+  while (args != NULL) {
     object *nargs = args;
     int arg1 = checkinteger(first(nargs));
     nargs = cdr(nargs);
@@ -3436,7 +3436,7 @@ object *fn_search (object *args, object *env) {
   object *target = second(args);
   if (pattern == NULL) return number(0);
   else if (target == NULL) return nil;
-  
+
   else if (listp(pattern) && listp(target)) {
     object *test = testargument(cddr(args));
     int l = listlength(target);
@@ -4193,7 +4193,7 @@ object *fn_drawchar (object *args, object *env) {
     for (int x=0; x<6; x++) {
       uint8_t pixel = (pgm_read_byte(&CharMap[c-32][x])>>y & 1) ^ bg;
       if (size == 1) PlotPoint(x0+x, ymax-(y0+y), pixel);
-      else { MoveTo(x0+x*size, ymax-(y0+y*size)); FillRect(size, size, pixel); }   
+      else { MoveTo(x0+x*size, ymax-(y0+y*size)); FillRect(size, size, pixel); }
     }
   }
   PlotPoint(255, 0, colour); // Flush
@@ -5273,7 +5273,7 @@ const tbl_entry_t lookup_table[] PROGMEM = {
   { string192, fn_aproposlist, 0211, doc192 },
   { string193, sp_unwindprotect, 0307, doc193 },
   { string194, sp_ignoreerrors, 0307, doc194 },
-  { string195, sp_error, 0317, doc195 }, 
+  { string195, sp_error, 0317, doc195 },
   { stringG1, fn_drawpixel, 0223, docG1 },
   { stringG2, fn_drawline, 0245, docG2 },
   { stringG3, fn_drawrect, 0245, docG3 },
@@ -5650,7 +5650,7 @@ void printstring (object *form, pfun_t pfun) {
 
 void pbuiltin (builtin_t name, pfun_t pfun) {
   int n = name<tablesize(0);
-  PGM_P s = (char*)pgm_read_ptr(&table(n?0:1)[n?name:name-tablesize(0)].string); 
+  PGM_P s = (char*)pgm_read_ptr(&table(n?0:1)[n?name:name-tablesize(0)].string);
   while (1) {
     char c = pgm_read_byte(s++);
     if (c == 0) return;
@@ -5709,7 +5709,7 @@ void pintbase (uint16_t i, uint8_t base, pfun_t pfun) {
 void printhex2 (int i, pfun_t pfun) {
   for (unsigned int d=0x10; d>0; d=d>>4) {
     unsigned int j = i/d;
-    pfun((j<10) ? j+'0' : j+'W'); 
+    pfun((j<10) ? j+'0' : j+'W');
     i = i - j*d;
   }
 }
@@ -5779,7 +5779,7 @@ volatile uint8_t KybdAvailable = 0;
 // Read functions
 
 int glibrary () {
-  if (LastChar) { 
+  if (LastChar) {
     char temp = LastChar;
     LastChar = 0;
     return temp;
@@ -5909,7 +5909,7 @@ object *nextitem (gfun_t gfun) {
   if (isbr(ch)) LastChar = ch;
 
   if (isnumber) {
-    if (base == 10 && result > ((unsigned int)INT_MAX+(1-sign)/2)) 
+    if (base == 10 && result > ((unsigned int)INT_MAX+(1-sign)/2))
       error2(PSTR("Number out of range"));
     return number(result*sign);
   } else if (base == 0) {
@@ -6114,7 +6114,7 @@ void Command (uint8_t c) {
 void Command2 (uint8_t c, uint8_t d1, uint8_t d2) {
   Command(c); Data(d1); Data(d2);
 }
-  
+
 void InitDisplay () {
   PORT_OUTPUT(1<<dc | 1<<cs | 1<<mosi | 1<<sck); // All outputs
   PORT_HIGH(1<<dc | 1<<cs | 1<<sck);       // Outputs high
@@ -6130,7 +6130,7 @@ void InitDisplay () {
   Command(0xC2);                           // Source Voltage Control 2
   Command(0xCB); Data(0x14);               // VCOMH Voltage Setting 4V
   Command(0xB4);                           // Update Period Gate EQ Control
-  Data(0xE5); Data(0x77); Data(0xF1); Data(0xFF); Data(0xFF); Data(0x4F); 
+  Data(0xE5); Data(0x77); Data(0xF1); Data(0xFF); Data(0xFF); Data(0x4F);
   Data(0xF1); Data(0xFF); Data(0xFF); Data(0x4F);
   Command(0xB0); Data(0x64);               // Duty Setting
   Command(0x11);                           // Out of sleep mode
@@ -6236,7 +6236,7 @@ uint8_t Reverse (uint8_t x) {
   x = ((x >> 1) & 0x55) | ((x << 1) & 0xaa);
   x = ((x >> 2) & 0x33) | ((x << 2) & 0xcc);
   x = ((x >> 4) & 0x0f) | ((x << 4) & 0xf0);
-  return x;    
+  return x;
 }
 
 // Scrolls the display up by one line, then clears the bottom line
@@ -6379,7 +6379,7 @@ void TriangleQuad(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     x4 = x0 + (x2 - x0) * (y1 - y0) / (y2 - y0);
     x5 = x1 + (x3 - x1) * (y2 - y1) / (y3 - y1);
   }
-  
+
   // Fill bottom section
   for (y = y0; y <= y1; y++) {
     a = x0 + (x4 - x0) * (y - y0) / (y1 - y0);
@@ -6417,7 +6417,7 @@ void PlotChar (uint8_t ch, uint8_t line, uint8_t column) {
     uint8_t left = Reverse(pgm_read_byte(&CharMap[ch][xx*2])) ^ inv;
     uint8_t right = Reverse(pgm_read_byte(&CharMap[ch][xx*2+1])) ^ inv;
     uint16_t data = Interleave(left, right);
-    Data(0); Data(data>>8 & 0xFF); Data(data & 0xFF); 
+    Data(0); Data(data>>8 & 0xFF); Data(data & 0xFF);
   }
   PORT_TOGGLE(1<<cs);
 }
@@ -6475,7 +6475,7 @@ const int ColumnsC = 0b11111111;            // Columns 3 to 10 in port C
 const int RowBits  = 0b00001111;            // Rows 0 to 4 in port B
 
 // Character set - stored in program memory
-const char Keymap[] PROGMEM = 
+const char Keymap[] PROGMEM =
 // Without shift
 "1234567890\b" "qwertyuiop\n" "asdfghjkl?\e" " zxcvbnm()."
 // With shift
@@ -6486,7 +6486,7 @@ const char Keymap[] PROGMEM =
 bool checkkey (char key) {
   for (uint8_t k=0; k<44; k++) {
     if (pgm_read_byte(&Keymap[k]) == key) {
-      uint8_t column = k % 11;     
+      uint8_t column = k % 11;
       if (column < 3) PORTE.OUTCLR = 1<<(2-column); else PORTC.OUTCLR = 1<<(10-column);
       uint8_t row = 3 - k/11; // Gives port time to settle
       uint8_t input = PORTB.IN;
@@ -6538,7 +6538,7 @@ void keyboard (bool enable) {
     PORTC.OUTSET = ColumnsC;
   }
 }
-  
+
 void ProcessKey (char c) {
   static int parenthesis = 0;
   static bool string = false;
@@ -6558,7 +6558,7 @@ void ProcessKey (char c) {
       WritePtr--;
       Display(0x7F);
       if (WritePtr) c = KybdBuf[WritePtr-1];
-    } 
+    }
   } else if (c == 9) { // tab or ctrl-I
     for (int i = 0; i < LastWritePtr; i++) Display(KybdBuf[i]);
     WritePtr = LastWritePtr;
