@@ -17,7 +17,7 @@ const char LispLibrary[] PROGMEM = "";
 // #define sdcardsupport
 // #define lisplibrary
 #define assemblerlist
-// #define extensions
+#define extensions
 
 // Includes
 
@@ -5775,6 +5775,7 @@ volatile int WritePtr = 0, ReadPtr = 0, LastWritePtr = 0;
 const int KybdBufSize = 333; // 42*8 - 3
 char KybdBuf[KybdBufSize];
 volatile uint8_t KybdAvailable = 0;
+volatile uint8_t KybdRawMode = 0;
 
 // Read functions
 
@@ -6522,7 +6523,11 @@ ISR(TCB3_INT_vect) {
     nokey = 0; row = 0;
     while ((rows & (1<<row)) != 0) row++;
     char c = pgm_read_byte(&Keymap[(3-row)*11 + column + 44*shift + 88*meta]); // TBD Shift+Meta
-    ProcessKey(c);
+    if (KybdRawMode) {
+      ProcessKeyRaw(c);
+    } else {
+      ProcessKey(c);
+    }
   }
   // Take this column high and next column low
   if (column < 3) PORTE.OUTSET = 1<<(2-column); else PORTC.OUTSET = 1<<(10-column);
@@ -6582,6 +6587,31 @@ void ProcessKey (char c) {
     Highlight(parenthesis, 1);
   }
   return;
+}
+
+
+void SetKeyboardRaw(int raw) {
+  KybdRawMode = raw;
+  WritePtr = 0;
+  ReadPtr = 0;
+}
+
+void ProcessKeyRaw (char c) {
+  if (WritePtr < KybdBufSize) {
+    KybdBuf[WritePtr++] = c;
+  }
+}
+
+char GetRawKey() {
+  // TODO only returns latest key.  Better would be
+  // to return the first char and shift the rest of
+  // the buffer down.
+  if (WritePtr > 0) {
+    WritePtr--;
+    return KybdBuf[WritePtr];
+  } else {
+    return 0;
+  }
 }
 
 void InitKybd () {
