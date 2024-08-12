@@ -96,12 +96,99 @@ object *fn_plotchar(object *args, object *env) {
 }
 
 
+// Edit Buffer
+//
+// Buffer used by the `v` visual editor
+//
+// (buf-init s)
+// (buf-char i)
+// (buf-insert i c)
+// (buf-delete i)
+// (buf-string)
+//
+
+const int EditBufSize = KybdBufSize;
+char EditBuf[EditBufSize];
+int EditBufLen = 0;
+
+int buf_valid_index(int i) {
+  if (i < 0 || i >= EditBufLen) {
+    pstring(PSTR("invalid index "), pserial);
+    pint(i, pserial);
+    return 0;
+  } else {
+    return 1;
+  }
+}
+
+object *fn_bufinit(object *args, object *env) {
+  object *s = checkstring(first(args));
+  int len = stringlength(s);
+  for (int i = 0; i < len; i++) {
+    EditBuf[i] = nthchar(s, i);
+  }
+  EditBufLen = len;
+  return nil;
+}
+
+object *fn_bufstring(object *args, object *env) {
+  object *obj = newstring();
+  object *tail = obj;
+  for (int i = 0; i < EditBufLen; i++) {
+    buildstring(EditBuf[i], &tail);
+  }
+  return obj;
+}
+
+object *fn_bufchar(object *args, object *env) {
+  int i = checkinteger(first(args));
+  if (buf_valid_index(i)) {
+    return character(EditBuf[i]);
+  } else {
+    return nil;
+  }
+}
+
+object *fn_bufinsert(object *args, object *env) {
+  int i = checkinteger(first(args));
+  uint8_t c = checkchar(second(args));
+  if (EditBufLen == EditBufSize) {
+    pstring(PSTR("buffer is full"), pserial);
+  } else if (i == EditBufLen || buf_valid_index(i)) {
+    for (int j = EditBufLen; j > i; j--) {
+      EditBuf[j] = EditBuf[j - 1];
+    }
+    EditBuf[i] = c;
+    EditBufLen++;
+  }
+  return nil;
+}
+
+object *fn_bufdelete(object *args, object *env) {
+  int i = checkinteger(first(args));
+  if (EditBufLen == 0) {
+    pstring(PSTR("buffer is empty"), pserial);
+  } else if (buf_valid_index(i)) {
+    for (int j = i; j < EditBufLen - 1; j++) {
+      EditBuf[j] = EditBuf[j + 1];
+    }
+    EditBufLen--;
+  }
+  return nil;
+}
+
+
 //--- Symbol names --------------------------------------------------
 
 
 const char stringreadchar[] PROGMEM = "read-char";
 const char stringwithkbraw[] PROGMEM = "with-kb-raw";
 const char stringplotchar[] PROGMEM = "plot-char";
+const char stringbufinit[] PROGMEM = "buf-init";
+const char stringbufstring[] PROGMEM = "buf-string";
+const char stringbufchar[] PROGMEM = "buf-char";
+const char stringbufinsert[] PROGMEM = "buf-insert";
+const char stringbufdelete[] PROGMEM = "buf-delete";
 
 
 //--- Documentation strings --------------------------------------------------
@@ -130,11 +217,36 @@ const char docplotchar[] PROGMEM = "(plot-char char line col invert)\n"
 "Inverts the display if `invert` is `t`.\n";
 
 
+// Edit Buffer
+//                                        |
+const char docbufinit[] PROGMEM = "(buf-init string)\n"
+"Initializes the edit buffer with the\n"
+"given string.\n";
+//                                        |
+const char docbufstring[] PROGMEM = "(buf-string)\n"
+"Returns the edit buffer content as a\n"
+"string.\n";
+//                                        |
+const char docbufchar[] PROGMEM = "(buf-char i)\n"
+"Returns buffer char at index i.";
+//                                        |
+const char docbufinsert[] PROGMEM = "(buf-insert i c)\n"
+"Inserts char c at index i.";
+//                                        |
+const char docbufdelete[] PROGMEM = "(buf-delete i)\n"
+"Deletes the buffer char at index i.";
+
+
 // Symbol lookup table
 const tbl_entry_t lookup_table2[] PROGMEM = {
   { stringreadchar, fn_readchar, 0201, docreadchar },
   { stringwithkbraw, sp_withkbraw, 0307, docwithkbraw },
   { stringplotchar, fn_plotchar, 0234, docplotchar },
+  { stringbufinit, fn_bufinit, 0211, docbufinit },
+  { stringbufstring, fn_bufstring, 0200, docbufstring },
+  { stringbufchar, fn_bufchar, 0211, docbufchar },
+  { stringbufinsert, fn_bufinsert, 0222, docbufinsert },
+  { stringbufdelete, fn_bufdelete, 0211, docbufdelete },
 };
 
 
